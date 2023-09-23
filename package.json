@@ -1,0 +1,15 @@
+{
+  "name": "free-things-scraper",
+  "version": "1.0.0",
+  "description": "It scraps the web to find me free events and stuff to do in my city, Montreal.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Sebastian Natale",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^20.8.0"
+  }
+}
