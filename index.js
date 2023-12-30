@@ -8,15 +8,11 @@ const freeRegex = /(?:^|\W)free(?:$|\W)/i;
   const page = await browser.newPage();
   page.setJavaScriptEnabled(false);
   page.setDefaultTimeout(500000);
+
+  // In case of pop-ups
   /* setTimeout(() => page.evaluate(() => window.stop()), 15000); */
 
   await page.goto('https://www.mtlblog.com/things-to-do/');
-/*   try {
-    await page.click('onesignal-slidedown-cancel-button');
-  } catch(e) {
-    console.log(e);
-  } */
-
   // THIS FUNCTION IS WORKING FINE, DON'T TOUCH IT
   const crawl = await page.evaluate(() =>
     Array.from(document.querySelectorAll('.widget__headline-text'), (e) => ({
@@ -32,7 +28,7 @@ const freeRegex = /(?:^|\W)free(?:$|\W)/i;
     }
   })
   console.log("results: " + JSON.stringify(results));
-  // -------------------------------------------------
+})();
 
 
 
@@ -42,8 +38,7 @@ const freeRegex = /(?:^|\W)free(?:$|\W)/i;
 
 
 
-
-  // TEST JSON IS USED FOR TEST                       heh.
+// TEST JSON IS USED FOR TEST                       heh.
 /*   fs.readFile('testData.json', 'utf8', (err, data) => {
     if (err) {
       console.error(err);
@@ -62,16 +57,7 @@ const freeRegex = /(?:^|\W)free(?:$|\W)/i;
   // Closing the browser immediately can cause a timeout error.
   /* setTimeout(async () => await browser.close(), 1000) */
   /* await browser.close(); */
-})();
-
-
-
-
-
-
-
-
-
+  
 
 /*   // Type into search box
   await page.type('.search-box__input', 'automate beyond recorder');
