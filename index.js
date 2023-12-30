@@ -4,14 +4,13 @@ const fs = require('fs');
 const freeRegex = /(?:^|\W)free(?:$|\W)/i;
 
 (async () => {
-/*   const browser = await puppeteer.launch({headless: false});
+  const browser = await puppeteer.launch({headless: false});
   const page = await browser.newPage();
   page.setJavaScriptEnabled(false);
-
   page.setDefaultTimeout(500000);
   /* setTimeout(() => page.evaluate(() => window.stop()), 15000); */
 
-  //await page.goto('https://www.mtlblog.com/things-to-do/');
+  await page.goto('https://www.mtlblog.com/things-to-do/');
 /*   try {
     await page.click('onesignal-slidedown-cancel-button');
   } catch(e) {
@@ -19,12 +18,20 @@ const freeRegex = /(?:^|\W)free(?:$|\W)/i;
   } */
 
   // THIS FUNCTION IS WORKING FINE, DON'T TOUCH IT
-/*   const crawl = await page.evaluate(() =>
+  const crawl = await page.evaluate(() =>
     Array.from(document.querySelectorAll('.widget__headline-text'), (e) => ({
       title: e.innerText,
       link: e.href
     }))
-  ); */
+  );
+
+  let results = [];
+  crawl.map((element, index) => {
+    if(freeRegex.exec(element.title) != null) {
+      results.push(element);
+    }
+  })
+  console.log("results: " + JSON.stringify(results));
   // -------------------------------------------------
 
 
@@ -37,7 +44,7 @@ const freeRegex = /(?:^|\W)free(?:$|\W)/i;
 
 
   // TEST JSON IS USED FOR TEST                       heh.
-  fs.readFile('testData.json', 'utf8', (err, data) => {
+/*   fs.readFile('testData.json', 'utf8', (err, data) => {
     if (err) {
       console.error(err);
     }
@@ -50,7 +57,7 @@ const freeRegex = /(?:^|\W)free(?:$|\W)/i;
       }
     })
     console.log(results)
-  });
+  }); */
 
   // Closing the browser immediately can cause a timeout error.
   /* setTimeout(async () => await browser.close(), 1000) */
