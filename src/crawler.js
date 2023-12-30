@@ -1,11 +1,10 @@
 const puppeteer = require('puppeteer');
-
-/* const frontend = require('frontend.js'); */
+const frontend = require('./frontend.js');
 
 const freeRegex = /(?:^|\W)free(?:$|\W)/i;
 
 (async () => {
-  const browser = await puppeteer.launch({headless: false});
+  const browser = await puppeteer.launch({headless: true});
 
   const page = await browser.newPage();
   page.setJavaScriptEnabled(false);
@@ -29,8 +28,9 @@ const freeRegex = /(?:^|\W)free(?:$|\W)/i;
       results.push(element);
     }
   });
-  console.log(results)
-  /* frontend(); */
+  
+  frontend(results);
+
 })();
 
 

@@ -1,17 +1,38 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-async function frontend() {
-  const browser = await puppeteer.launch({headless: false});
+const frontend = async (results) => {
+    const browser = await puppeteer.launch({headless: false});
 
-  const template = fs.readFile('index.html', 'utf8', async (err, data) => {
-    if (err) {
-      console.error(err);
-    }
-    console.log("template: " + data);
     const pagetest = await browser.newPage();
-    await pagetest.setContent(data);
-  });
+    pagetest.setJavaScriptEnabled(true);
+    // THIS DOESNT ALLOW TO SHARE CONTENT WITH THE HTML FILE
+    // Create a server?
+    await pagetest.setContent(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                h1 {
+                    border-bottom: 3px solid black;
+                }
+            </style>
+            <title>Crawler frontend</title>
+        </head>
+        <body>
+            <main>
+                <h1>crawler thing</h1>
+                <h3 id="title"></h3>
+                <p id="link"></p>
+            </main>
+        </body>
+        <script>
+                document.getElementById('link').innerHTML = '${JSON.stringify(results)}'
+        </script>
+        </html>
+    `);
 };
 
-export default frontend;
+module.exports = frontend;
