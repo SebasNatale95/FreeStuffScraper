@@ -4,11 +4,11 @@ const fs = require('fs');
 const frontend = async (results) => {
     const browser = await puppeteer.launch({headless: false});
 
-    const pagetest = await browser.newPage();
-    pagetest.setJavaScriptEnabled(true);
+    const front = await browser.newPage();
+    front.setJavaScriptEnabled(true);
     // THIS DOESNT ALLOW TO SHARE CONTENT WITH THE HTML FILE
     // Create a server?
-    await pagetest.setContent(`
+    await front.setContent(`
         <!DOCTYPE html>
         <html lang="en">
         <head>
