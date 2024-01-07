@@ -1,35 +1,66 @@
 const puppeteer = require('puppeteer');
 const frontend = require('./frontend.js');
 
-const freeRegex = /(?:^|\W)free(?:$|\W)/i;
-
 (async () => {
-  const browser = await puppeteer.launch({headless: true});
+
+  let results = {
+    mtlBlog: [],
+    cultMtl: []
+  };
+
+  const browser = await puppeteer.launch({headless: 'new'});
 
   const page = await browser.newPage();
   page.setJavaScriptEnabled(false);
-  page.setDefaultTimeout(500000);
+  page.setDefaultTimeout(15000);
 
-  // In case of pop-ups
+  // In case of pop-ups. TODO: Change to an IF
   /* setTimeout(() => page.evaluate(() => window.stop()), 15000); */
 
-  await page.goto('https://www.mtlblog.com/things-to-do/');
-  // THIS FUNCTION IS WORKING FINE, DON'T TOUCH IT
-  const crawl = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('.widget__headline-text'), (e) => ({
-      title: e.innerText,
-      link: e.href
-    }))
-  );
+  async function mtlBlogCrawl() {
+    await page.goto('https://www.mtlblog.com/things-to-do/');
+    const crawl = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('.widget__headline-text'), (e) => ({
+        title: e.innerText,
+        link: e.href
+      }))
+    );
+    const freeRegex = /(?:^|\W)free(?:$|\W)/i;
+    crawl.map((element, index) => {
+      if(freeRegex.exec(element.title) != null) {
+        results.mtlBlog.push(element);
+      }
+    });
+  };
 
-  let results = [];
-  crawl.map((element, index) => {
-    if(freeRegex.exec(element.title) != null) {
-      results.push(element);
-    }
-  });
-  
-  frontend(results);
+  async function cultMtlCrawl() {
+    const currentYear = new Date;
+    await page.goto(`https://cultmtl.com/${currentYear.getFullYear()}/01/what-to-do-today-in-montreal-to-do-list/`);
+    const crawl = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('.post-200920 .entry-content p > a'), (e) => ({
+        title: e.textContent,
+        link: e.href
+      }))
+    );
+    const regex = new RegExp('A post shared by*', 'g');
+    crawl.map((element, index) => {
+      if(element.title.length > 0 && regex.test(element.title) == false) {
+        results.cultMtl.push(element);
+      }
+    });
+  };
+
+  async function executeFrontEnd() {
+    await mtlBlogCrawl();
+    await cultMtlCrawl();
+    console.log("Results sent to frontend: \n", results)
+    frontend(results);
+  }
+
+  await executeFrontEnd();
+
+  // Closing the browser immediately can cause a timeout error.
+  setTimeout(async () => await browser.close(), 500)
 
 })();
 
