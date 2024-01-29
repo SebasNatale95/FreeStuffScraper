@@ -8,6 +8,43 @@ const frontend = require('./frontend.js');
     cultMtl: []
   };
 
+  async function waitingFront(value) {
+    const waitFront = await browser.newPage();
+    if(value === true) {
+      const browser = await puppeteer.launch({headless: false});
+        waitFront.setContent(`
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+                    <style>
+                        main {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            padding: 15px;
+                        }
+                    </style>
+                    <title>Crawler frontend</title>
+                </head>
+                <body>
+                    <main>
+                        <h1>WAITING FOR CRAWLER TO FINISH</h1>
+                        <p><i>Closing the browser in 10 seconds if no data is collected</i></p>
+                    </main>
+                </body>
+            </html>
+        `);
+        setTimeout(async () => await browser.close(), 10000);
+    } else {
+      waitFront.close();
+      frontend(results);
+    }
+  };
+  await waitingFront(true);
+
   const browser = await puppeteer.launch({headless: 'new'});
 
   const page = await browser.newPage();
@@ -54,17 +91,12 @@ const frontend = require('./frontend.js');
     await mtlBlogCrawl();
     await cultMtlCrawl();
     console.log("Results sent to frontend: \n", results)
-    frontend(results);
+    await waitingFront(false);
   }
 
   await executeFrontEnd();
 
-  // Closing the browser immediately can cause a timeout error.
-  setTimeout(async () => await browser.close(), 500)
-
 })();
-
-
 
 
 
