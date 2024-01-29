@@ -9,9 +9,9 @@ const frontend = require('./frontend.js');
   };
 
   async function waitingFront(value) {
+    const browser = await puppeteer.launch({headless: false});
     const waitFront = await browser.newPage();
     if(value === true) {
-      const browser = await puppeteer.launch({headless: false});
         waitFront.setContent(`
             <!DOCTYPE html>
             <html lang="en">
