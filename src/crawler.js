@@ -2,57 +2,69 @@ const puppeteer = require('puppeteer');
 const frontend = require('./frontend.js');
 
 (async () => {
-
+  // Initialize required variables
+  let browser;
+  let waitFront;
   let results = {
     mtlBlog: [],
     cultMtl: []
   };
 
-  async function waitingFront(value) {
-    const browser = await puppeteer.launch({headless: false});
-    const waitFront = await browser.newPage();
-    if(value === true) {
-        waitFront.setContent(`
-            <!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-                    <style>
-                        main {
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            padding: 15px;
-                        }
-                    </style>
-                    <title>Crawler frontend</title>
-                </head>
-                <body>
-                    <main>
-                        <h1>WAITING FOR CRAWLER TO FINISH</h1>
-                        <p><i>Closing the browser in 10 seconds if no data is collected</i></p>
-                    </main>
-                </body>
-            </html>
-        `);
-        setTimeout(async () => await browser.close(), 10000);
-    } else {
-      waitFront.close();
-      frontend(results);
-    }
-  };
+  // Execution sequence
   await waitingFront(true);
 
-  const browser = await puppeteer.launch({headless: 'new'});
-
+  browser = await puppeteer.launch({headless: 'new'});
   const page = await browser.newPage();
   page.setJavaScriptEnabled(false);
   page.setDefaultTimeout(15000);
-
   // In case of pop-ups. TODO: Change to an IF
   /* setTimeout(() => page.evaluate(() => window.stop()), 15000); */
+
+  await executeFrontEnd();
+
+  // Functions
+  async function waitingFront(value) {
+    if(value === true) {
+      browser = await puppeteer.launch({headless: false});
+      waitFront = await browser.newPage();
+      waitFront.setContent(`
+          <!DOCTYPE html>
+          <html lang="en">
+              <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+                  <style>
+                      main {
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                          padding: 15px;
+                      }
+                  </style>
+                  <title>Crawler frontend</title>
+              </head>
+              <body>
+                  <main>
+                      <h1>WAITING FOR CRAWLER TO FINISH</h1>
+                      <p><i>Closing the browser in 10 seconds if no data is collected</i></p>
+                  </main>
+              </body>
+          </html>
+      `);
+    } else {
+      // TODO: this is not closing the waiting page and browser.
+      await browser.close();
+      frontend(results);
+    }
+  };
+
+  async function executeFrontEnd() {
+    await mtlBlogCrawl();
+    await cultMtlCrawl();
+    console.log("Results sent to frontend: \n", results)
+    await waitingFront(false);
+  }
 
   async function mtlBlogCrawl() {
     await page.goto('https://www.mtlblog.com/things-to-do/');
@@ -86,15 +98,6 @@ const frontend = require('./frontend.js');
       }
     });
   };
-
-  async function executeFrontEnd() {
-    await mtlBlogCrawl();
-    await cultMtlCrawl();
-    console.log("Results sent to frontend: \n", results)
-    await waitingFront(false);
-  }
-
-  await executeFrontEnd();
 
 })();
 
